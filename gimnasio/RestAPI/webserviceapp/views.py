@@ -26,7 +26,7 @@ def profile(request):
 		diccionario['telefono'] = fila_sql.telefono
 		respuesta_final.append(diccionario)
 		
-	return JsonResponse(respuesta_final, safe=False)
+	return JsonResponse(respuesta_final, safe=False);
 
 
 
@@ -50,4 +50,4 @@ def profile(request):
         new_user = authenticate(correo=correo, password=password)
         login(request, new_user)
         
-        return JsonResponse({'message': 'Registration successful'}, status=201)
+        return JsonResponse({'message': 'Registration successful'}, status=201);
