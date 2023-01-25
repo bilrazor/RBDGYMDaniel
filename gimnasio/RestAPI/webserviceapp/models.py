@@ -40,12 +40,13 @@ class Tpedidos(models.Model):
 
 class Tpersona(models.Model):
     idpersona = models.AutoField(db_column='IdPersona', primary_key=True)  # Field name made lowercase.
-    dni = models.CharField(db_column='DNI', max_length=50, blank=True, null=True)  # Field name made lowercase.
-    nombre = models.CharField(db_column='Nombre', max_length=500, blank=True, null=True)  # Field name made lowercase.
-    correo = models.CharField(db_column='Correo', max_length=200, blank=True, null=True)  # Field name made lowercase.
+    dni = models.CharField(max_length=50, blank=True, null=True)
+    nombre = models.CharField(max_length=500, blank=True, null=True)
+    correo = models.CharField(max_length=200, blank=True, null=True)
+    password = models.CharField(max_length=20, blank=True, null=True)
     pago = models.IntegerField(db_column='Pago', blank=True, null=True)  # Field name made lowercase.
-    dirección = models.CharField(db_column='Dirección', max_length=2000, blank=True, null=True)  # Field name made lowercase.
-    nºteléfono = models.IntegerField(db_column='Nºteléfono', blank=True, null=True)  # Field name made lowercase.
+    direccion = models.CharField(max_length=2000, blank=True, null=True)
+    telefono = models.IntegerField(blank=True, null=True)
 
     class Meta:
         managed = False
