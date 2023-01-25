@@ -21,5 +21,6 @@ from webserviceapp import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('test', views.pagina_de_prueba),
-    path('perfil', views.profile)
+    path('perfil', views.profile), 
+    path('register',views,users)
 ]
