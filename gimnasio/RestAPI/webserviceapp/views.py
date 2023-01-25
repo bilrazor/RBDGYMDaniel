@@ -31,7 +31,7 @@ def profile(request):
 
 
 
-    def users(request):
+    /*def users(request):
         correo = request.POST.get('correo')
         password = request.POST.get('password')
         if not correo or not password:
@@ -50,4 +50,22 @@ def profile(request):
         new_user = authenticate(correo=correo, password=password)
         login(request, new_user)
         
-        return JsonResponse({'message': 'Registration successful'}, status=201);
+        return JsonResponse({'message': 'Registration successful'}, status=201);*/
+
+
+
+def users(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+	nombre = data.get('nombre')
+        correo = data.get('correo')
+        password = data.get('password')
+
+        if User.objects.filter(correo=correo).exists():
+            return JsonResponse({"error": "Username already taken."}, status=400)
+
+        user = Tpersona.objects.create_user(nombre=nombre,correo=correo, password=password)
+        user.save()
+
+        return JsonResponse({"message": "User registered successfully."}, status=201)
+    return JsonResponse({"error": "Invalid request method."}, status=405)
