@@ -19,13 +19,8 @@ from django.urls import path
 from webserviceapp import views
 
 
-
-from .views import users
-
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('test', views.pagina_de_prueba),
-    path('perfil', views.profile), 
-    path('register', users, name='users'),
+
 ]
