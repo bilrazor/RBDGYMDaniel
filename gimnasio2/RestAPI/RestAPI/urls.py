@@ -20,8 +20,7 @@ from webserviceapp import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('test',views.paginaP),
-    path('perfil',views.personas),
+
     path('users',views.users)
    
 ]
