@@ -22,6 +22,7 @@ from webserviceapp import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('users',views.users),
-    path('sessions',views.sessions)
+    path('sessions',views.sessions),
+    
    
 ]

@@ -7,6 +7,7 @@ import json
 import datetime
 from django.conf import settings
 import hashlib 
+import uuid
 
 # Create your views here.
 @csrf_exempt
@@ -47,31 +48,41 @@ def users(request):
  
 @csrf_exempt
 def sessions(request):
-    if request.method != 'POST':
-        return HttpResponse(status=405)
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        correo = data.get('correo')
+        password = data.get('password')
     
-    data = json.loads(request.body)
-    correo = data.get('correo')
-    password = data.get('password')
-    
-    if not all([correo, password]):
-        return JsonResponse({'error': 'Faltan parámetros'}, status=400)
-    
-    user = Tpersona.objects(correo=correo, password=password)
-    user = authenticate(correo=correo, password=password)
-    if user is None:
-        return JsonResponse({'error': 'Credenciales inválidas'}, status=401)
-    
-    login(request, user)
-    
-    session_token = create_session_token(user)
-    return JsonResponse({'session_token': session_token}, status=200)
+        if not all([correo, password]):
+            return JsonResponse({'error': 'Faltan parámetros'}, status=400)
+        try:
+            user = Tpersona.objects.get(correo=correo, password=password)
+            user.save()
+        except Tpersona.DoesNotExist:
+            return JsonResponse({'error': 'Usuario o contraseña incorrecto'}, status=401)
+         
+      
+        #generate session token
+        session_token = uuid.uuid4()
+         
+    return JsonResponse({'session_token': uuid.uuid4()}, status=200)
 
 
-def create_session_token(user):
-    # Crear una instancia del algoritmo sha256
-    sha = hashlib.sha256()
-    # Agregar el nombre de usuario y el ID como salt
-    sha.update((user.correo + str(user.id)).encode('utf-8'))
-    # Devolver el token encriptado
-    return sha.hexdigest()
+ #@csrf_exempt
+#def sessions(request):
+ #   if request.method == 'POST':
+  #      data = json.loads(request.body)
+  #      correo = data.get('correo')
+  #      password = data.get('password')
+#
+ #       user = authenticate(request, correo=correo, password=password)
+ #       if user is None:
+ #           return JsonResponse({'error': 'Credenciales inválidas'}, status=401)
+ #       login(request, user)
+
+        #generate session token
+#        session_token = uuid.uuid4()
+#
+ #       return JsonResponse({'session_token': str(session_token)}, status=200)
+  #  else:
+  #      return JsonResponse({'error': 'Método no permitido'}, status=405)
