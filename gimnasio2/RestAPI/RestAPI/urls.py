@@ -23,6 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('users',views.users),
     path('sessions',views.sessions),
+    path('profile/<int:idpersona>',views.profile ),
     
    
 ]

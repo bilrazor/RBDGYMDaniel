@@ -36,13 +36,18 @@ CORS_ALLOWED_ORIGINS = [
 CSRF_TRUSTED_ORIGINS =[
     'http://localhost:3000'
 ]
+CORS_ORIGIN_WHITELIST = (
+    'http://localhost:3000',
+    'http://localhost:8000',
+    'http://localhost:8000',
+)
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',
     'webserviceapp.apps.WebserviceappConfig',
     'django.contrib.admin',
     'django.contrib.auth',
-    'corsheaders',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -62,7 +67,6 @@ MIDDLEWARE = [
  
 ]
 
- 
 
 
 ROOT_URLCONF = 'RestAPI.urls'
