@@ -24,6 +24,7 @@ urlpatterns = [
     path('users',views.users),
     path('sessions',views.sessions),
     path('profile/<int:idpersona>',views.profile ),
+    path('datos/<int:idpersona>',views.datos ),
     
    
 ]

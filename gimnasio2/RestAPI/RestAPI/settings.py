@@ -121,8 +121,19 @@ CORS_ALLOW_HEADERS =[
     "access-control-allow-origin",
     "Access-Control-Allow-Headers",
     "content-type"
-
+    
+      
 ]
+#"accept",
+#    "accept-encoding",
+#    "authorization",
+#    "content-type",
+#    "dnt",
+#    "origin",
+#    "user-agent",
+#    "x-csrftoken",
+#   "x-requested-with",
+
 PASSWORD_HASHERS = [
 'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
 'django.contrib.auth.hashers.BCryptPasswordHasher',

@@ -29,11 +29,6 @@ def users(request):
         if not all([nombre, correo, password, passwordConfirm]):
             return JsonResponse({'error': 'Faltan parámetros'}, status=400)
 
-        if len(password) < 8:
-            return JsonResponse({'error': 'La contraseña es demasiado corta'}, status=400)
-        
-        if '@' not in correo:
-            return JsonResponse({'error': 'Dirección de correo electrónico inválida'}, status=400)
         # Validar que las contraseñas coincidan
         if password != passwordConfirm:
             return JsonResponse({'error': 'Las contraseñas no coinciden'}, status=400)
@@ -161,7 +156,7 @@ def profile(request,idpersona):
 def profile(request,idpersona):
     if request.method == 'GET':
         session_token = request.headers.get('sessionToken')
-        print(session_token)
+      
        
         user = Tpersona.objects.get(idpersona=idpersona)
         
@@ -195,4 +190,29 @@ def profile(request,idpersona):
             data = {'nombre': persona.nombre, 'correo': persona.correo}
             return JsonResponse(data, status=200)
         except Tpersona.DoesNotExist:
-            return JsonResponse({'error': 'La persona no existe'}, status=404)""" 
+            return JsonResponse({'error': 'La persona no existe'}, status=404)"""
+            
+@csrf_exempt         
+def datos(request, idpersona):
+
+    if request.method == 'PUT':
+# Recupera los datos enviados en la solicitud
+        data = json.loads(request.body.decode("utf-8"))
+# Recupera el usuario con idpersona
+        try:
+            user = Tpersona.objects.get(idpersona=idpersona)
+        except Tpersona.DoesNotExist:
+            return JsonResponse({'error': 'El usuario con idpersona {} no existe'.format(idpersona)}, status=400)
+        # Actualiza los datos del usuario con los datos recibidos
+        user.nombre = data.get("nombre")
+        user.correo = data.get("correo")
+        user.dni = data.get("dni")
+        user.direccion = data.get("direccion")
+        user.telefono = data.get("telefono")
+        user.password = data.get("password")
+        user.set_password(data.get("password"))
+        print(user.nombre)
+        print(user.correo)
+        user.save()
+        # Devuelve una respuesta vacía para indicar que la operación se realizó con éxito
+        return JsonResponse({'mensaje': 'Perfil actualizado exitosamente'}, status=200)
