@@ -6,7 +6,7 @@
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
-
+from django.contrib.auth.hashers import make_password
 
 class Tcategorias(models.Model):
     categoriaid = models.AutoField(db_column='CategoriaId', primary_key=True)  # Field name made lowercase.
@@ -43,12 +43,13 @@ class Tpersona(models.Model):
     dni = models.CharField(max_length=50, blank=True, null=True)
     nombre = models.CharField(max_length=500, blank=True, null=True)
     correo = models.CharField(max_length=200, blank=True, null=True)
-    password = models.CharField(max_length=20, blank=True, null=True)
+    password = models.CharField(max_length=200, blank=True, null=True)
     pago = models.IntegerField(db_column='Pago', blank=True, null=True)  # Field name made lowercase.
     direccion = models.CharField(max_length=2000, blank=True, null=True)
     telefono = models.IntegerField(blank=True, null=True)
     session_token = models.CharField(max_length=2000, blank=True, null=True)
-
+    def set_password(self, raw_password):
+        self.password = make_password(raw_password)
     class Meta:
         managed = False
         db_table = 'tpersona'

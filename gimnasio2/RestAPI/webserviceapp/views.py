@@ -13,6 +13,7 @@ from django.http import JsonResponse
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 from django.contrib.auth import get_user
+from django.contrib.auth.hashers import check_password
 
 # Create your views here.
 @csrf_exempt
@@ -28,16 +29,22 @@ def users(request):
         if not all([nombre, correo, password, passwordConfirm]):
             return JsonResponse({'error': 'Faltan parámetros'}, status=400)
 
+        if len(password) < 8:
+            return JsonResponse({'error': 'La contraseña es demasiado corta'}, status=400)
+        
+        if '@' not in correo:
+            return JsonResponse({'error': 'Dirección de correo electrónico inválida'}, status=400)
         # Validar que las contraseñas coincidan
         if password != passwordConfirm:
             return JsonResponse({'error': 'Las contraseñas no coinciden'}, status=400)
-
+    
         # Validar que el usuario no exista
         if Tpersona.objects.filter(correo=correo).exists():
             return JsonResponse({'error': 'El usuario ya existe'}, status=409)
 
         # Crear el usuario
         user = Tpersona(nombre=nombre, correo=correo, password=password)
+        user.set_password(password)
         user.save()
 
         # Crear y devolver el token de sesion
@@ -45,12 +52,11 @@ def users(request):
         # user.session_token = session_token
         # user.save()
         # return JsonResponse({'sessionToken': session_token}, status=201)
-        return JsonResponse({'OK': 'El usuario registrado'}, status=200)
+        return JsonResponse({'OK': 'El usuario registrado'}, status=201)
 
     return HttpResponse(status=405)
 
 
- 
 @csrf_exempt
 def sessions(request):
     if request.method == 'POST':
@@ -59,17 +65,23 @@ def sessions(request):
         password = data.get('password')
     
         if not all([correo, password]):
-            return JsonResponse({'error': 'Faltan parámetros'}, status=400)
+            return JsonResponse({'error': 'Parámetros faltantes: correo y password son requeridos'}, status=400)
+        
         try:
-            user = Tpersona.objects.get(correo=correo, password=password)
-            session_token = uuid.uuid4()
-            Tpersona.objects.filter(idpersona=user.idpersona).update(session_token=session_token)
-           
-            data = {'idpersona': user.idpersona,'sessionToken': session_token}
-         
+            user = Tpersona.objects.get(correo=correo)
         except Tpersona.DoesNotExist:
-            return JsonResponse({'error': 'Usuario o contraseña incorrecto'}, status=401)
-    return JsonResponse(data, status=200) 
+            return JsonResponse({'error': 'Usuario no encontrado'}, status=401)
+        
+        if check_password(password, user.password):
+            session_token = uuid.uuid4()
+            Tpersona.objects.filter(idpersona=user.idpersona).update(session_token=str(session_token))
+            
+            data = {'idpersona': user.idpersona, 'sessionToken': str(session_token)}
+          
+        else:
+            return JsonResponse({'error': 'Contraseña incorrecta'}, status=401)
+            
+    return JsonResponse(data, status=200)
  #@csrf_exempt
 #def sessions(request):
  #   if request.method == 'POST':
@@ -148,8 +160,8 @@ def profile(request,idpersona):
 @csrf_exempt
 def profile(request,idpersona):
     if request.method == 'GET':
-        session_token = request.headers.get("sessionToken")
-        
+        session_token = request.headers.get('sessionToken')
+        print(session_token)
        
         user = Tpersona.objects.get(idpersona=idpersona)
         
