@@ -117,10 +117,11 @@ DATABASES = {
     }
 }
 CORS_ALLOW_HEADERS =[ 
-    "sessionToken"
+                     
+    "sessionToken",
     "access-control-allow-origin",
     "Access-Control-Allow-Headers",
-    "content-type"
+    "content-type",
     
       
 ]

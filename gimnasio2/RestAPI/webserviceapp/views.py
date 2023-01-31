@@ -4,9 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login
 from .models import *
 import json
-import datetime
 from django.conf import settings
-import hashlib 
 import uuid
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
@@ -26,12 +24,12 @@ def users(request):
         passwordConfirm = data.get('passwordConfirm')
 
         # Validar que todos los campos esten completos
-        if not all([nombre, correo, password, passwordConfirm]):
-            return JsonResponse({'error': 'Faltan parámetros'}, status=400)
-
+        if None in (nombre, correo, password, passwordConfirm):
+            return JsonResponse({'error': 'Faltan parametros'}, status=400)
         # Validar que las contraseñas coincidan
         if password != passwordConfirm:
             return JsonResponse({'error': 'Las contraseñas no coinciden'}, status=400)
+        
     
         # Validar que el usuario no exista
         if Tpersona.objects.filter(correo=correo).exists():
@@ -154,21 +152,22 @@ def profile(request,idpersona):
 
 @csrf_exempt
 def profile(request,idpersona):
+    
     if request.method == 'GET':
         session_token = request.headers.get('sessionToken')
-      
-       
+        print(session_token)
         user = Tpersona.objects.get(idpersona=idpersona)
         
-        """if not session_token or session_token != user.session_token:
-            return JsonResponse({"error": "Token de sesión inválido"}, status=401)"""
+        if not session_token or session_token != user.session_token:
+            return JsonResponse({"error": "Token de sesión inválido"}, status=401)
         
         data = {
             'dni': user.dni,
             'nombre':user.nombre,
             'correo': user.correo,
             'direccion': user.direccion,
-            'telefono': user.telefono
+            'telefono': user.telefono,
+            'password':user.password
         }
     
         return JsonResponse(data)
@@ -204,15 +203,53 @@ def datos(request, idpersona):
         except Tpersona.DoesNotExist:
             return JsonResponse({'error': 'El usuario con idpersona {} no existe'.format(idpersona)}, status=400)
         # Actualiza los datos del usuario con los datos recibidos
-        user.nombre = data.get("nombre")
-        user.correo = data.get("correo")
-        user.dni = data.get("dni")
-        user.direccion = data.get("direccion")
-        user.telefono = data.get("telefono")
-        user.password = data.get("password")
-        user.set_password(data.get("password"))
+ 
+        print(data.get("password"))
+        print(data.get("nombre"))
+        if data.get("nombre") != '':
+            user.nombre = data.get("nombre")
+        if data.get("correo") != '' :
+            user.correo = data.get("correo") 
+        if data.get("dni") != '' :
+            user.dni = data.get("dni")
+        if data.get("direccion") != '':    
+            user.direccion = data.get("direccion")
+        if data.get("telefono") != '':  
+            user.telefono = data.get("telefono")
+        if data.get("password") != '':  
+            user.password = data.get("password")
+            user.set_password(data.get("password"))
         print(user.nombre)
         print(user.correo)
         user.save()
         # Devuelve una respuesta vacía para indicar que la operación se realizó con éxito
         return JsonResponse({'mensaje': 'Perfil actualizado exitosamente'}, status=200)
+    
+"""   
+@csrf_exempt
+def datos(request, idpersona):
+    if request.method == 'PUT':
+        data = json.loads(request.body.decode("utf-8"))
+        user = get_user(idpersona)
+        if not user:
+            return JsonResponse({'error': f'El usuario con idpersona {idpersona} no existe'}, status=400)
+        update_user(user, data)
+        return JsonResponse({'mensaje': 'Perfil actualizado exitosamente'}, status=200)
+
+def get_user(idpersona):
+    try:
+        return Tpersona.objects.get(idpersona=idpersona)
+    except Tpersona.DoesNotExist:
+        return None
+
+def update_user(user, data):
+    user.nombre = data.get("nombre", user.nombre)
+    user.correo = data.get("correo", user.correo)
+    user.dni = data.get("dni", user.dni)
+    user.direccion = data.get("direccion", user.direccion)
+    user.telefono = data.get("telefono", user.telefono)
+    password = data.get("password")
+    if password:
+        user.password = password
+        user.set_password(password)
+    user.save()"""
