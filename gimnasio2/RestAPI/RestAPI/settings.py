@@ -116,6 +116,8 @@ DATABASES = {
         
     }
 }
+
+
 CORS_ALLOW_HEADERS =[ 
                      
     "sessionToken",

@@ -12,7 +12,7 @@ class Tcategorias(models.Model):
     categoriaid = models.AutoField(db_column='CategoriaId', primary_key=True)  # Field name made lowercase.
     nombre = models.CharField(db_column='Nombre', max_length=20)  # Field name made lowercase.
     imagen = models.CharField(db_column='Imagen', max_length=2000, blank=True, null=True)  # Field name made lowercase.
-
+    
     class Meta:
         managed = False
         db_table = 'tcategorias'
@@ -48,6 +48,7 @@ class Tpersona(models.Model):
     direccion = models.CharField(max_length=2000, blank=True, null=True)
     telefono = models.IntegerField(blank=True, null=True)
     session_token = models.CharField(max_length=2000, blank=True, null=True)
+    expires_at = models.DateTimeField(blank=True, null=True)
     def set_password(self, raw_password):
         self.password = make_password(raw_password)
     class Meta:

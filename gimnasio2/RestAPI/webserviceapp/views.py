@@ -1,18 +1,14 @@
 from django.shortcuts import render
 from django.http import HttpResponse , JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth import authenticate, login
 from .models import *
 import json
 from django.conf import settings
 import uuid
-from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from django.http import JsonResponse
-from django.views.decorators.http import require_GET
-from django.contrib.auth import get_user
 from django.contrib.auth.hashers import check_password
-
+import datetime
+from django.utils import timezone
 # Create your views here.
 @csrf_exempt
 def users(request):
@@ -50,7 +46,7 @@ def users(request):
     return HttpResponse(status=405)
 
 
-@csrf_exempt
+"""@csrf_exempt
 def sessions(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -74,7 +70,38 @@ def sessions(request):
         else:
             return JsonResponse({'error': 'Contraseña incorrecta'}, status=401)
             
+    return JsonResponse(data, status=200)"""
+    
+@csrf_exempt
+def sessions(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        correo = data.get('correo')
+        password = data.get('password')
+    
+        if not all([correo, password]):
+            return JsonResponse({'error': 'Parámetros faltantes: correo y password son requeridos'}, status=400)
+        
+        try:
+            user = Tpersona.objects.get(correo=correo)
+        except Tpersona.DoesNotExist:
+            return JsonResponse({'error': 'Usuario no encontrado'}, status=401)
+        
+        if check_password(password, user.password):
+            session_token = uuid.uuid4()
+            expires_at = datetime.datetime.now() + datetime.timedelta(minutes=1)            
+            Tpersona.objects.filter(idpersona=user.idpersona).update(session_token=str(session_token), expires_at=expires_at)
+            if datetime.datetime.now()  > expires_at:
+                return JsonResponse({'error': 'Token ha caducado, inicia sesión de nuevo'}, status=401)        
+            data = {'idpersona': user.idpersona, 'sessionToken': str(session_token), 'expiresAt': expires_at.isoformat()}
+          
+        else:
+            return JsonResponse({'error': 'Contraseña incorrecta'}, status=401)
+    
+    
     return JsonResponse(data, status=200)
+    
+    
  #@csrf_exempt
 #def sessions(request):
  #   if request.method == 'POST':
