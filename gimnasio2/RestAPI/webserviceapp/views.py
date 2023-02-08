@@ -78,16 +78,11 @@ def sessions(request):
         # en la base de datos para ese usuario. Si no coincide, devuelve una respuesta JSON con un error indicando que la contraseña es incorrecta.
         if check_password(password, user.password):
             #Genera un token de sesión único y una fecha de expiración para ese token.
-            session_token = uuid.uuid4()
-            expires_at = datetime.datetime.now() + datetime.timedelta(minutes=1)            
-            Tpersona.objects.filter(idpersona=user.idpersona).update(session_token=str(session_token), expires_at=expires_at)
-            #Verifica si la fecha actual es mayor que la fecha de expiración. Si es así, devuelve una 
-            # respuesta JSON con un error indicando que el token ha caducado.
-            if datetime.datetime.now()  > expires_at:
-                return JsonResponse({'error': 'Token ha caducado, inicia sesión de nuevo'}, status=401)        
+            session_token = uuid.uuid4()          
+            Tpersona.objects.filter(idpersona=user.idpersona).update(session_token=str(session_token))      
             #Devuelve una respuesta JSON con los datos del usuario, incluyendo el ID de la 
             # persona, el token de sesión y la fecha de expiración.
-            data = {'idpersona': user.idpersona, 'sessionToken': str(session_token), 'expiresAt': expires_at.isoformat()}
+            data = {'idpersona': user.idpersona, 'sessionToken': str(session_token)}
           
         else:
             return JsonResponse({'error': 'Contraseña incorrecta'}, status=401)
@@ -159,3 +154,40 @@ def datos(request, idpersona):
         # Devuelve una respuesta vacía para indicar que la operación se realizó con éxito
         return JsonResponse({'mensaje': 'Perfil actualizado exitosamente'}, status=200)
  
+ 
+
+
+def orders(request, idpersona):
+    if request.method == 'GET':
+        session_token = request.headers.get('sessionToken')
+        if session_token != 'sessionToken':
+            return JsonResponse({'error': 'SessionToken inválido'}, status=401)
+        
+        # Obtener todos los pedidos de la base de datos relacionados con el id de persona dado
+        pedidos = Tpedidos.objects.filter(idpersona=idpersona)
+       
+        orders = []
+        
+        # Iterar sobre cada pedido y agregar la información necesaria al arreglo 'orders'
+        for pedido in pedidos:
+            items = []
+            # Obtener todos los productos relacionados con el pedido actual y el id de persona dado
+            productos = Tcarrito.objects.filter(idpersona=idpersona)
+            # Iterar sobre cada producto y agregar la información necesaria al arreglo 'items'
+            for producto in productos:
+                item = {
+                    "name": producto.nombre,
+                    "quantity": producto.color,
+                    "unitPrice": producto.precio,
+                    "description": producto.descripcion,
+                    "productId": producto.productosid
+                }
+                items.append(item)
+            
+            order = {
+                "orderDate": pedido.fecha,
+                "items": items
+            }
+            orders.append(order)
+        
+        return JsonResponse(orders, safe=False)

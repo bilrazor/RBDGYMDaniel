@@ -23,8 +23,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('users',views.users),
     path('sessions',views.sessions),
+    path('orders/<int:idpersona>',views.orders),
     path('profile/<int:idpersona>',views.profile ),
     path('datos/<int:idpersona>',views.datos ),
     
-   
 ]
